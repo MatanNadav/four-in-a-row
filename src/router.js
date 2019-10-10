@@ -4,7 +4,7 @@ import Home from './views/Home.vue'
 
 import About from '@/views/About.vue'
 import Settings from '@/views/Settings.vue'
-import GameBoard from '@/views/GameBoard.vue'
+import Game from '@/views/Game.vue'
 
 Vue.use(Router)
 
@@ -30,7 +30,7 @@ export default new Router({
     {
       path: '/game',
       name: 'game',
-      component: GameBoard
+      component: Game
     }
   ]
 })
