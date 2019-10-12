@@ -121,7 +121,7 @@ export default {
                 } else counter = 0;
             }
             // diagonals: 
-            while ( (x + n < mat.length - 1|| x - n > 0) && y + n < mat[0].length - 1) { //checking only to the right of x,y
+            while (y + n < mat[0].length - 1) { //checking only to the right of x,y
                 if (x - n > 0) { // checking when x can decrement
                    if(mat[x-n][y+n].pickedById === mat[x-n-1][y+n+1].pickedById && mat[x-n][y+n].pickedById) {
                        downLCounter++
@@ -145,7 +145,7 @@ export default {
                 n++
             }
             n = 0
-            while ((x + n < mat.length || x - n >= 0) && y - n > 0) { // checking only to the left of x,y
+            while (y - n > 0) { // checking only to the left of x,y
                 if (x - n > 0) { // checking when x can decrement
                     if (mat[x-n][y-n].pickedById === mat[x-n-1][y-n-1].pickedById && mat[x-n][y-n].pickedById) {
                         downRCounter++
