@@ -18,7 +18,7 @@
         </div>
         <div class="form-container flex column">
             <h5>Game Settings</h5>
-            <h6>at the moment only 6*7 board is applicable</h6>
+            <h6>At the moment more than 9*9 is not availble due to canvas size on page</h6>
             <b-form-input type="number" v-model="game.board.rows" placeholder="Rows"></b-form-input>
             <b-form-input type="number" v-model="game.board.columns" placeholder="Columns"></b-form-input>
             <b-form-input type="number" v-model="game.board.numOfConnectionToWin" placeholder="Number of Connections to win"></b-form-input>

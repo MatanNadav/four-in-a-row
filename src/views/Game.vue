@@ -1,9 +1,11 @@
 <template>
-    <section class="canvas-container">
-        <h4 v-if="currPlayer.name">{{currPlayer.name}}'s turn to play</h4>
+    <section class="game-container">
+        <h4 v-if="currPlayer.name" class="player-turn-head">{{currPlayer.name}}'s turn to play</h4>
         <button v-else-if="!currPlayer.name" @click="restartGame" class="start-over-btn">Start Game</button>
         <h4 v-else>Game Over</h4>
-        <canvas class="canvas" ref="canvas" @click="cellClicked($event)"></canvas>
+        <div class="canvas-container">
+            <canvas class="canvas" ref="canvas" @click="cellClicked($event)"></canvas>
+        </div>
     </section>
 
 </template>
@@ -17,7 +19,6 @@ export default {
             board: {},
             validPos: [],
             currPlayer: {},
-            animation: 0,
         }
     },
     created() {
@@ -48,7 +49,7 @@ export default {
                 return (cell.x === canvasXCor && cell.y === canvasYCor && cell.isPicked === false)
             })
             if(idx > -1) {
-                await this.drawCircle(canvasXCor, canvasYCor)
+                this.drawCircle(canvasXCor, canvasYCor)
                 await this.$store.dispatch({type: 'updateMatrix', cellX, cellY})
                 this.advanceGame(canvasXCor, canvasYCor, this.currPlayer.id, idx)
                 if(this.validPos.length > this.board.numOfConnectionToWin * 2 -1) {
@@ -83,11 +84,11 @@ export default {
                     this.ctx.moveTo(100 * row, 0)
                     this.ctx.lineTo(100 * row, this.board.rows * 100)
                     this.ctx.stroke()
-                    if (col < 5) {
+                    if (col < this.board.rows - 1) {
                         this.paintRect(row * 100 + 5, col * 100 + 5, 90, 'red')
                     }
-                    if (col === this.board.rows - 1 && this.validPos.length < 7) {
-                        this.validPos.push({x: row*100+50, y: 550, isPicked: false})
+                    if (col === this.board.rows - 1 && this.validPos.length < this.board.matrix[0].length) {
+                        this.validPos.push({x: row*100+50, y: this.board.rows * 100 - 50, isPicked: false})
                     }
                 }
             }
@@ -97,15 +98,17 @@ export default {
             let mat = board.matrix
             let n = 0; // number to increment with
             let counter = 0;
-            let key = mat[0].length -1;
+            let downRCounter = 0; // connections counter for down right horizontal 
+            let downLCounter = 0; // connections counter for down left horizontal 
+
             for (var row = 0; row < board.rows - 1; row++) {
-                    if (mat[row][y].pickedById === mat[row + 1][y].pickedById && mat[row][y].pickedById) { // cheking win vertically in pairs
-                        counter ++
-                        if (counter === board.numOfConnectionToWin - 1) {
-                            this.announceWin(mat[x][y].pickedById)
-                            return
-                        } 
-                    } else counter = 0;
+                if (mat[row][y].pickedById === mat[row + 1][y].pickedById && mat[row][y].pickedById) { // cheking win vertically in pairs
+                    counter ++
+                    if (counter === board.numOfConnectionToWin - 1) {
+                        this.announceWin(mat[x][y].pickedById)
+                        return
+                    } 
+                } else counter = 0;
             }
             counter = 0;
             for (var col = 0; col < board.columns - 1; col++) {
@@ -117,67 +120,55 @@ export default {
                     }
                 } else counter = 0;
             }
-            counter = 0;
-            if ( y >= x ) { // checking half the matrix diagonals
-                while ( ((y-x) + n + 1) <= mat[0].length - 1 && (x-(key-y) + n + 1) <= mat.length - 1) {
-                    // checking down-right diagonal
-                    if (mat[(x-x) + n][(y-x) + n].pickedById === mat[(x-x) + n + 1][(y-x) + n + 1].pickedById && mat[(x-x) + n][(y-x) + n].pickedById) {
-                        counter++
-                        if (counter === board.numOfConnectionToWin - 1) {
+            // diagonals: 
+            while ( (x + n < mat.length - 1|| x - n > 0) && y + n < mat[0].length - 1) { //checking only to the right of x,y
+                if (x - n > 0) { // checking when x can decrement
+                   if(mat[x-n][y+n].pickedById === mat[x-n-1][y+n+1].pickedById && mat[x-n][y+n].pickedById) {
+                       downLCounter++
+                       if (downLCounter === board.numOfConnectionToWin - 1) {
+                           this.announceWin(mat[x][y].pickedById)
+                           return 
+                       }
+                   }
+                   else downLCounter = 0;
+                }
+                if (x + n < mat.length-1) { // checking when x can increment
+                    if (mat[x+n][y+n].pickedById === mat[x+n+1][y+n+1].pickedById && mat[x+n][y+n].pickedById) {
+                        downRCounter++
+                        if (downRCounter === board.numOfConnectionToWin - 1) {
                             this.announceWin(mat[x][y].pickedById)
                             return
                         }
                     }
-                    else if (x + y <= mat[0].length-1 && ((y+x) - n - 1) > -1 ) {
-                        // checking down-left diagonal
-                        if (mat[(x-x) + n][(y+x) - n].pickedById === mat[(x-x) + n + 1][(y+x) - n - 1].pickedById && mat[(x-x) + n][(y+x) - n].pickedById) {
-                            counter++
-                            if (counter === board.numOfConnectionToWin - 1) {
-                                this.announceWin(mat[x][y].pickedById)
-                                return
-                            }
-                        } else counter = 0;
-                    } else { // when x + y are bigger than mat[0].length-1
-                        if (mat[x-(key-y) + n][key - n].pickedById === mat[x-(key-y) + n + 1][key - n - 1].pickedById && mat[x-(key-y) + n][key - n].pickedById) {
-                            counter++
-                            if (counter === board.numOfConnectionToWin - 1) {
-                                this.announceWin(mat[x][y].pickedById)
-                                return
-                            }
-                        } else counter = 0;
-                    }
-                    n++
+                    else downRCounter = 0;
                 }
-            } else { // when y < x - checking the other half of the matrix diagonals
-                n = 0;
-                while( (x-y + n + 1) < mat.length && (x-(key - y) + n + 1) < mat.length) {
-                    if (mat[x-y + n][0 + n].pickedById === mat[x-y + n + 1][0 + n + 1].pickedById && mat[x-y + n][0 + n].pickedById) {
-                        counter++
-                        if (counter === board.numOfConnectionToWin - 1) {
-                            this.announceWin(mat[x][y].pickedById)
-                            return
-                        }
-                    }
-                    else if ( x + y <= key ) {
-                        if (mat[0 + n][x+y - n].pickedById === mat[0 + n + 1][x+y - n - 1] && mat[0 + n][x+y - n].pickedById) {
-                            counter++
-                            if (counter === board.numOfConnectionToWin - 1) {
-                                this.announceWin(mat[x][y].pickedById)
-                                return
-                            }
-                        } else counter = 0;
-                    } else { // when  x + y > key. key = the length of the row - columns
-                        if (mat[x-(key - y) + n][key - n].pickedById === mat[x-(key - y) + n + 1][key - n - 1].pickedById && mat[x-(key - y) + n][key - n].pickedById) {
-                            counter++
-                            if (counter === board.numOfConnectionToWin - 1) {
-                                this.announceWin(mat[x][y].pickedById)
-                                return
-                            }
-                        } else counter = 0;
-                    }
-                    n++
-                }
+                n++
             }
+            n = 0
+            while ((x + n < mat.length || x - n >= 0) && y - n > 0) { // checking only to the left of x,y
+                if (x - n > 0) { // checking when x can decrement
+                    if (mat[x-n][y-n].pickedById === mat[x-n-1][y-n-1].pickedById && mat[x-n][y-n].pickedById) {
+                        downRCounter++
+                        if (downRCounter === board.numOfConnectionToWin - 1) {
+                            this.announceWin(mat[x][y].pickedById)
+                            return
+                        }
+                    }
+                    else downRCounter = 0;
+                }
+                if ( x + n < mat.length -1) { // checking when x can increment
+                    if (mat[x+n][y-n].pickedById === mat[x+n+1][y-n-1].pickedById && mat[x+n][y-n].pickedById) {
+                        downLCounter++
+                        if (downLCounter === board.numOfConnectionToWin - 1) {
+                            this.announceWin(mat[x][y].pickedById)
+                            return
+                        }
+                    }
+                    else downLCounter = 0;
+                }
+                n++
+            }
+
         },
         async advanceGame(x, y, id, idx) {
             this.validPos[idx] = {x, y, isPicked: true};
@@ -218,13 +209,21 @@ export default {
     .canvas {
         border: 2px solid black;
     }
-    .canvas-container {
-        height: 85vh;
+    .game-container {
+        height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: space-around;
         background-color: whitesmoke;
+    }
+    .canvas-container {
+        margin: 100px;
+    }
+    .player-turn-head {
+        position: absolute;
+        left: 50px;
+        top: 75px;
     }
     .start-over-btn {
         border: 0;
