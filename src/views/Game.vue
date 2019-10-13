@@ -4,7 +4,8 @@
         <button v-else-if="!currPlayer.name" @click="restartGame" class="start-over-btn">Start Game</button>
         <h4 v-else>Game Over</h4>
         <div class="canvas-container">
-            <canvas class="canvas" ref="canvas" @click="cellClicked($event)"></canvas>
+            <canvas class="canvas" ref="canvas" style="z-index: 2" @click="cellClicked($event)"></canvas>
+            <canvas class="canvasAnimation" ref="canvasAnimation"  style="z-index: 0"></canvas>
         </div>
     </section>
 
@@ -15,7 +16,10 @@ export default {
     data() {
         return {
             canvas:null,
+            canvasHelper: null,
             ctx:null,
+            ctxHelper: null,
+            animation: 0,
             board: {},
             validPos: [],
             currPlayer: {},
@@ -29,9 +33,15 @@ export default {
     },
     mounted() {
         this.canvas = this.$refs.canvas;
+        this.canvasHelper = this.$refs.canvasAnimation
         this.ctx = this.canvas.getContext('2d');
-        this.canvas.width = this.$store.getters.getWidth * 100;
-        this.canvas.height = this.$store.getters.getHeight * 100;
+        this.ctxHelper = this.canvasHelper.getContext('2d')
+        let width = this.$store.getters.getWidth * 100;
+        let height = this.$store.getters.getHeight * 100;
+        this.canvas.width = width
+        this.canvas.height = height
+        this.canvasHelper.width = width; 
+        this.canvasHelper.height = height; 
         this.renderCanvas() 
     },
     destroyed() {
@@ -39,7 +49,9 @@ export default {
     },
     methods: {
         async cellClicked(ev) {
-            
+            if (this.animation !== 0) {
+                return
+            }
             let canvasXCor = Math.ceil(ev.offsetX / 100) * 100 - 50 ;
             let canvasYCor = Math.ceil(ev.offsetY/ 100) * 100 - 50;
             let cellX  = Math.floor(ev.offsetY / 100);
@@ -49,22 +61,46 @@ export default {
                 return (cell.x === canvasXCor && cell.y === canvasYCor && cell.isPicked === false)
             })
             if(idx > -1) {
-                this.drawCircle(canvasXCor, canvasYCor)
+                
+                this.animateCircle(canvasXCor, canvasYCor, this.currPlayer.id, idx)
                 await this.$store.dispatch({type: 'updateMatrix', cellX, cellY})
-                this.advanceGame(canvasXCor, canvasYCor, this.currPlayer.id, idx)
                 if(this.validPos.length > this.board.numOfConnectionToWin * 2 -1) {
                     this.checkWin(cellX, cellY);
                 }
             }
-            else this.$swal.fire({type: 'error',title: 'Oops...', text: 'Not a valid cell',})
+            else this.$swal.fire({type: 'error',title: 'Oops', text: 'Not a valid cell',})
         },
 
-        drawCircle(x, y) {
+        drawCircle(x, y, color) {
+            this.ctxHelper.clearRect(0, 0, this.canvasHelper.width, this.canvasHelper.height)
             this.ctx.beginPath();
             this.ctx.arc(x, y, 30, 0, Math.PI * 2);
-            this.ctx.fillStyle = this.currPlayer.color
+            this.ctx.fillStyle = color
             this.ctx.fill()
             this.ctx.closePath();
+        },
+        animateCircle(x, y, id, idx) {
+            if (this.animation < y) {
+                this.animation += 25;
+                var color = this.currPlayer.color
+                var timeout = setTimeout(this.animateCircle, 200, x, y, id, idx)
+            }
+            if (this.animation === y) {
+                this.drawCircle(x, y, color)
+                this.advanceGame(x, y, id, idx)
+                clearTimeout(timeout)
+                this.animation = 0
+                return
+            }
+            this.ctxHelper.save()
+            this.ctxHelper.clearRect(0, 0, this.canvasHelper.width, this.canvasHelper.height)
+            this.ctxHelper.beginPath();
+            this.ctxHelper.arc(x, this.animation, 30, 0, Math.PI * 2);
+            this.ctxHelper.fillStyle = this.currPlayer.color
+            this.ctxHelper.fill()
+            this.ctxHelper.closePath();
+            this.ctxHelper.restore()
+            
         },
         paintRect(x, y, size, color) {
             if (color === 'red') this.ctx.globalAlpha = 0.6
@@ -208,6 +244,8 @@ export default {
 <style lang="scss" scoped >
     .canvas {
         border: 2px solid black;
+        position: absolute;
+
     }
     .game-container {
         height: 100vh;
