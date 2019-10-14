@@ -1,5 +1,5 @@
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
-      ? '/Connect-4/'
+      ? '/four-in-a-row/'
       : '/'
   }
