@@ -1,19 +1,21 @@
 <template>
-    <section class="settings-container flex row">
-        <div class="form-container flex column">
-            <h5>Player one settings</h5>
-            <b-form-input v-model="game.playerOne.name" placeholder="Enter your name"></b-form-input>
-            <div>
-                <h6>Choose your color</h6>
-                <b-form-input type="color" v-model="game.playerOne.color" placeholder="Player one color"></b-form-input>
+    <section class="settings-container flex column">
+        <div class="players-inputs-container flex row">
+            <div class="form-container flex column">
+                <h5>Player one settings</h5>
+                <b-form-input v-model="game.playerOne.name" placeholder="Enter your name"></b-form-input>
+                <div>
+                    <h6>Choose your color</h6>
+                    <b-form-input type="color" v-model="game.playerOne.color" placeholder="Player one color"></b-form-input>
+                </div>
             </div>
-        </div>
-        <div class="form-container flex column">
-            <h5>Player Two settings</h5>
-            <b-form-input v-model="game.playerTwo.name" placeholder="Enter your name"></b-form-input>
-            <div>
-                <h6>Choose your color</h6>
-                <b-form-input type="color" v-model="game.playerTwo.color" placeholder="Player one color"></b-form-input>
+            <div class="form-container flex column">
+                <h5>Player Two settings</h5>
+                <b-form-input v-model="game.playerTwo.name" placeholder="Enter your name"></b-form-input>
+                <div>
+                    <h6>Choose your color</h6>
+                    <b-form-input type="color" v-model="game.playerTwo.color" placeholder="Player one color"></b-form-input>
+                </div>
             </div>
         </div>
         <div class="form-container flex column">
@@ -51,10 +53,15 @@
 <style lang="scss" scoped>
   .settings-container {
       justify-content: space-around;
+      align-items: center;
       width: 50rem;
       height: 50rem;
       margin: 100px auto;
       border: 3px solid black
+    }
+    .players-inputs-container {
+        width: 100%;
+        justify-content: space-around;
     }
     .form-container {
         justify-content: space-around;
@@ -65,8 +72,6 @@
         }
     }
     .submit-btn {
-        position: absolute;
-        bottom: 50px;
         border: 0;
         padding: 10px;
         text-decoration: none;

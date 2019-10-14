@@ -1,8 +1,7 @@
 <template>
     <section class="game-container">
-        <h4 v-if="currPlayer.name" class="player-turn-head">{{currPlayer.name}}'s turn to play</h4>
-        <button v-else-if="!currPlayer.name" @click="restartGame" class="start-over-btn">Start Game</button>
-        <h4 v-else>Game Over</h4>
+        <h4 v-if="isActive" class="player-turn-head">{{currPlayer.name}}'s turn to play</h4>
+        <button v-else @click="restartGame" class="start-over-btn">Start Game</button>
         <div class="canvas-container">
             <canvas class="canvas" ref="canvas" style="z-index: 2" @click="cellClicked($event)"></canvas>
             <canvas class="canvasAnimation" ref="canvasAnimation"  style="z-index: 0"></canvas>
@@ -15,6 +14,7 @@
 export default {
     data() {
         return {
+            isActive: false,
             canvas:null,
             canvasHelper: null,
             ctx:null,
@@ -41,7 +41,8 @@ export default {
         this.canvas.width = width
         this.canvas.height = height
         this.canvasHelper.width = width; 
-        this.canvasHelper.height = height; 
+        this.canvasHelper.height = height;
+        this.isActive = true
         this.renderCanvas() 
     },
     destroyed() {
@@ -49,7 +50,7 @@ export default {
     },
     methods: {
         async cellClicked(ev) {
-            if (this.animation !== 0) {
+            if (this.animation !== 0 || !this.isActive) {
                 return
             }
             let canvasXCor = Math.ceil(ev.offsetX / 100) * 100 - 50 ;
@@ -81,9 +82,9 @@ export default {
         },
         animateCircle(x, y, id, idx) {
             if (this.animation < y) {
-                this.animation += 25;
+                this.animation += 50;
                 var color = this.currPlayer.color
-                var timeout = setTimeout(this.animateCircle, 200, x, y, id, idx)
+                var timeout = setTimeout(this.animateCircle, 100, x, y, id, idx)
             }
             if (this.animation === y) {
                 this.drawCircle(x, y, color)
@@ -104,6 +105,10 @@ export default {
         },
         paintRect(x, y, size, color) {
             if (color === 'red') this.ctx.globalAlpha = 0.6
+            else if (color === 'whitesmoke') {
+                this.ctx.clearRect(x, y, size, size);
+                return
+            }
             this.ctx.beginPath();
             this.ctx.fillStyle = color
             this.ctx.fillRect(x, y, size, size)
@@ -215,25 +220,28 @@ export default {
             await this.$store.dispatch({type: 'advanceTurn', id})
             this.currPlayer = this.$store.getters.getCurrPlayer
         },
-        announceWin(id) {
+        async announceWin(id) {
             if (id === 1) {
-                this.$swal.fire('Good job!',`Player one has won the game`,'success')
+                    this.$swal.fire('Good job!',`Player one has won the game`,'success')
+                    
             }
             else this.$swal.fire('Good job!',`Player Two has won the game`,'success')
-            this.$store.dispatch('gameDefaults')
+            await this.$store.dispatch('gameDefaults')
+            this.isActive = false
+                
 
         },
-        restartGame() {
+        async restartGame() {
             this.validPos = []
             this.ctx.clearRect(0, 0, this.board.columns*100, this.board.rows*100)
-            this.$store.dispatch({type: 'createBoard'})
-            this.$store.dispatch({type: 'advanceTurn'})
+            await this.$store.dispatch({type: 'createBoard'})
             this.currPlayer = this.$store.getters.getCurrPlayer
             this.board = this.$store.getters.getBoard
             this.canvas = this.$refs.canvas;
             this.ctx = this.canvas.getContext('2d');
             this.canvas.width = this.$store.getters.getWidth * 100;
             this.canvas.height = this.$store.getters.getHeight * 100;
+            this.isActive = true
             this.renderCanvas() 
         }
     }

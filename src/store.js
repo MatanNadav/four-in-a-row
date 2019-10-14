@@ -9,7 +9,7 @@ export default new Vuex.Store({
     game: {
       board:{rows: 6, columns: 7, numOfConnectionToWin: 4, matrix:[]},
       playerOne: {color: 'blue', name: 'Shani', id: 1},
-      playerTwo: {color: 'red', name: 'Sam', id: 2},
+      playerTwo: {color: 'red', name: 'Matan', id: 2},
     },
     currPlayer: {},
   },

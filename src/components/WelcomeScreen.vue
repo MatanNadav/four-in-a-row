@@ -16,9 +16,13 @@
 
 <style lang="scss" scoped>
     .bg-container {
-        width: 100vw;
-        height: 100vh;
-        background: url("../../public/imgs/bg.jpg");
-        object-fit: contain;
+        background: url("../../public/imgs/bg.jpg") no-repeat center;
+        background-size:cover;
+        background-attachment:fixed;
+        position:absolute;
+        top: 55px;
+        left:0;
+        height:100%;
+        width:100%;
     }
 </style>
