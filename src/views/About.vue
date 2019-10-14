@@ -3,7 +3,7 @@
       <h3>Matan Nadav</h3>
       <p>
         This project simulates the world-class and fun game "Connect 4" or "Four in a row".
-        <br />Its been an educating and fun challenge, hope you enjoy
+        <br />Its been an educating and fun challenge, hope you enjoy.
       </p>
   </div>
 </template>
