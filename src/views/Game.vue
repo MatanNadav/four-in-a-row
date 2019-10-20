@@ -221,11 +221,7 @@ export default {
             this.currPlayer = this.$store.getters.getCurrPlayer
         },
         async announceWin(id) {
-            if (id === 1) {
-                    this.$swal.fire('Good job!',`Player one has won the game`,'success')
-                    
-            }
-            else this.$swal.fire('Good job!',`Player Two has won the game`,'success')
+            this.$swal.fire('Good job!',`${this.currPlayer.name} has won the game`,'success')
             await this.$store.dispatch('gameDefaults')
             this.isActive = false
                 
