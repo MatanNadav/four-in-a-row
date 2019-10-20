@@ -4,12 +4,15 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
+    "deploy": "gh-pages -d dist",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
+  "homepage": "https://matannadav.github.io/four-in-a-row/",
   "dependencies": {
     "bootstrap-vue": "^2.0.3",
     "core-js": "^2.6.5",
+    "gh-pages": "^2.1.1",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
     "vue-sweetalert2": "^2.1.1",
