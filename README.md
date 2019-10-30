@@ -18,7 +18,7 @@ npm run build
 
 ### Run your tests
 ```
-Np available tests for this app
+No available tests for this app
 ```
 
 ### Lints and fixes files
