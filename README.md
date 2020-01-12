@@ -1,5 +1,5 @@
 # four-in-a-row
-	Matan Nadav - A fresh take on the world-class game Connect 4 / For in a row
+	Matan Nadav - A fresh take on the world-class game Connect 4 / Four in a row
 	This project uses Vue CLI 3 with other UI libraries.
 ## Project setup
 ```
