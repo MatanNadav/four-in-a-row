@@ -1,5 +1,5 @@
 <template>  
-<div>
+<div class="app-header-container">
   <b-navbar toggleable="lg" type="dark" variant="info">
     <b-navbar-brand href="#">Connect 4</b-navbar-brand>
 
